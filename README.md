@@ -56,7 +56,6 @@ IODaemonizer.wrap(
 
 Now we can call our script with `start` to perform the expensive setup step once and store the state in a background process. Subsequent calls to our script will run in a new process that communicates with the daemon over a TCP socket. The daemon redirects stdio through the socket connection and the client prints any messages it receives.
 
-
 ```
 $ time ruby example.rb start
 starting server...
