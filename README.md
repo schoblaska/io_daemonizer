@@ -84,7 +84,7 @@ IODaemonizer.serve(
     setup: -> do
       @app = App.new
     end,
-    run: ->(args) do]
+    run: ->(args) do
       # DO NOT USE ARGV HERE - use args instead, which is how the daemon passes
       # the arguments it receives over the socket to the run block
       puts @app.shout(ARGV.join(" "))
