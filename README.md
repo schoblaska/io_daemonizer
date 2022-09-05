@@ -17,8 +17,8 @@ class App
   end
 end
 
-app = App.new # slow
-puts app.say(ARGV.join(" ")) # fast
+app = App.new # slow; does the same thing each run
+puts app.say(ARGV.join(" ")) # fast; does something different each run
 ```
 
 If we're calling this script frequently, we don't want to pay the cost of `App.new` each time. Instead, IO Daemonizer can wrap the setup step and the run step separately:
@@ -40,16 +40,16 @@ IODaemonizer.serve(
     end
   }
 )
-
 ```
 
-Now the slow step is performed once and its state is stored in memory in a persistent thread running in the background. Calling the script will pipe arguments over a TCP socket to the daemon process, which executes the `run` proc in the scope of the `setup` step and returns the results over the socket. The caller then prints the results to stdout.
+Now the slow step is performed once and its state is stored in memory in a persistent thread running in the background. Calling the script will pipe arguments over a TCP socket to the daemon process, which executes the `run` lambda in the scope of the `setup` step and returns the results over the socket. The caller then prints the results to stdout.
 
 ## Usage
 IO Daemonizer is packaged as a gem, but it has no dependencies outside the core library and you may find it more convenient to include `io_daemonizer.rb` in your project directly. It needs to be loaded with each call to your script, so the less overhead the better.
 
 ## Roadmap
 * [x] proof of concept
+* [ ] block while setting up daemon
 * [ ] basic docs (benchmarks, server control)
 * [ ] license
 * [ ] :bookmark: `v.1`: gemify 
@@ -62,4 +62,4 @@ IO Daemonizer is packaged as a gem, but it has no dependencies outside the core 
 * [ ] pids?
 * [ ] usage instructions (-h)?
 * [ ] logs?
-* [ ] first argument that sends literal args (eg, so that you can pass "stop" to the daemon instead of stopping it)
+* [ ] support first argument that sends remaining as literal args (eg, so that you can pass "stop" _to_ the daemon instead of stopping it)
