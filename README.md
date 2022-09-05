@@ -21,7 +21,19 @@ app = App.new # slow; does the same thing each run
 puts app.say(ARGV.join(" ")) # fast; does something different each run
 ```
 
-If we're calling this script frequently, we don't want to pay the cost of `App.new` each time. Instead, IO Daemonizer can wrap the setup step and the run step separately:
+If we're calling this script frequently, we don't want to pay the cost of `App.new` each time.
+
+```
+$ time ruby example.rb hello
+olleh
+real    0m1.089s
+
+$ time ruby example.rb there
+ereht
+real    0m1.089s
+```
+
+Instead, IO Daemonizer can wrap the setup step and the run step separately:
 
 ```ruby
 require "io_daemonizer"
@@ -42,24 +54,81 @@ IODaemonizer.serve(
 )
 ```
 
-Now the slow step is performed once and its state is stored in memory in a persistent thread running in the background. Calling the script will pipe arguments over a TCP socket to the daemon process, which executes the `run` lambda in the scope of the `setup` step and returns the results over the socket. The caller then prints the results to stdout.
+Now we can call our script with `start` to perform the expensive setup step once and store the state in a background process. Subsequent calls to our script will run in a new process that communicates with the daemon over a TCP socket. The daemon redirects stdio through the socket connection and the client prints any messages it receives.
+
+
+```
+$ time ruby example.rb start
+starting server...
+real    0m1.088s
+
+$ time ruby example.rb hello
+olleh
+real    0m0.081s
+
+$ time ruby example.rb there
+ereht
+real    0m0.067s
+```
+
+## Installation
+IO Daemonizer is packaged as a gem, but it has no dependencies outside the core library and you may find it more convenient to include `io_daemonizer.rb` in your project directly. It needs to be loaded with each call to your script, so the less overhead the better.
 
 ## Usage
-IO Daemonizer is packaged as a gem, but it has no dependencies outside the core library and you may find it more convenient to include `io_daemonizer.rb` in your project directly. It needs to be loaded with each call to your script, so the less overhead the better.
+### Defining your setup and run blocks
+Both the setup and run blocks are stored in variables inside the daemon, and all execution is done within the daemon's scope - the client only passes its `ARGV` over the socket to the daemon and prints any response. If you reference `ARGV` directly in your run block it will not work as expected since it will be the _daemon_'s `ARGV` that gets evaluated:
+
+```ruby
+IODaemonizer.serve(
+  {
+    setup: -> do
+      @app = App.new
+    end,
+    run: ->(args) do]
+      # DO NOT USE ARGV - use args instead, which is how the daemon passes the
+      # arguments it receives over the socket to the run block
+      puts @app.say(ARGV.join(" "))
+    end
+  }
+)
+
+# $ ruby example.rb start
+#   => starting server...
+
+# $ ruby example.rb hello
+#   trats
+```
+
+Also note that the daemon's scope is persistent across runs of your script. So, for example, the following would print a new number each run:
+
+```ruby
+IODaemonizer.wrap(
+  setup: -> { @count = 0 },
+  run: ->(args) { puts @count += 1 }
+)
+```
+
+### Starting and stopping the server
+Call your script with `start` or `stop` as the first argument to control the daemon process.
+
+The daemon will start synchronously (ie, it will wait until the setup step completes to send itself to the background and return).
+
+### Executing your script
+Once the daemon is running, you can call your script as normal.
 
 ## Roadmap
 * [x] proof of concept
-* [ ] block while setting up daemon
-* [ ] basic docs (benchmarks, server control)
+* [x] basic docs
 * [ ] license
 * [ ] :bookmark: `v.1`: gemify 
 * [ ] auto-start server if not available (configurable?)
-* [ ] exit codes
-* [ ] stdin
-* [ ] port argument
+* [ ] forward exit code to client script
+* [ ] support stdin
+* [ ] pass port as argument?
 * [ ] support io more generically
-* [ ] feedback and status ("starting...", "stopping...")
+* [ ] command to get server status
 * [ ] pids?
 * [ ] usage instructions (-h)?
 * [ ] logs?
+* [ ] optional async startup
 * [ ] support first argument that sends remaining as literal args (eg, so that you can pass "stop" _to_ the daemon instead of stopping it)

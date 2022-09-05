@@ -67,6 +67,8 @@ class IODaemonizer
       read_socket(@server.accept) until @server.closed?
     end
 
+    private
+
     def read_socket(socket)
       args = socket.read.shellsplit
 
@@ -77,10 +79,10 @@ class IODaemonizer
           @context.instance_exec args, &@run
         end
       end
+    rescue => e
+      socket.write e.inspect
     ensure
       socket.close
     end
   end
-
-  private
 end
