@@ -123,7 +123,7 @@ The port can be specified with the `IO_DAEMONIZER_PORT` environment variable. Ma
 * [x] proof of concept
 * [x] basic docs
 * [x] license
-* [x] :bookmark: `v.1`: gemify 
+* [x] :bookmark: [`v.1`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.1): gemify 
 * [ ] auto-start server if not available (configurable?)
 * [ ] forward exit code to client script
 * [ ] support stdin
