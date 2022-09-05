@@ -9,10 +9,10 @@ class IODaemonizer
   def self.wrap(setup: -> {}, run: -> {})
     case ARGV[0]
     when "start"
-      puts "starting server... "
+      puts "starting server..."
       Daemon.run(setup: setup, run: run)
     when "stop"
-      puts "stopping server... "
+      puts "stopping server..."
       send_request(ARGV)
     else
       send_request(ARGV)
