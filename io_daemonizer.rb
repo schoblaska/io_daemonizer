@@ -1,4 +1,4 @@
-# io_daemonizer v.null https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.1 https://github.com/joeyschoblaska/io_daemonizer
 
 require "shellwords"
 require "socket"
