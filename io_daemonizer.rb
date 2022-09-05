@@ -12,19 +12,13 @@ class IODaemonizer
       puts "starting server... "
       Daemon.run(setup: setup, run: run)
     when "stop"
-      begin
-        puts "stopping server... "
-        send_request(ARGV)
-      rescue Errno::ECONNREFUSED
-        puts "server not running or not responding"
-      end
+      puts "stopping server... "
+      send_request(ARGV)
     else
-      begin
-        send_request(ARGV)
-      rescue Errno::ECONNREFUSED
-        puts "server unavailable or refuses to connect"
-      end
+      send_request(ARGV)
     end
+  rescue Errno::ECONNREFUSED
+    puts "server not running or not responding"
   end
 
   def self.send_request(args)
