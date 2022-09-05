@@ -42,7 +42,7 @@ class App
   # ...
 end
 
-IODaemonizer.serve(
+IODaemonizer.wrap(
   {
     setup: -> do
       @app = App.new # slow
@@ -79,7 +79,7 @@ IO Daemonizer is packaged as a gem, but it has no dependencies outside the core 
 Both the setup and run blocks are stored in variables inside the daemon, and all execution is done within the daemon's scope - the client only passes its `ARGV` over the socket to the daemon and prints any response. If you reference `ARGV` directly in your run block it will not work as expected since it will be the _daemon_'s `ARGV` that gets evaluated:
 
 ```ruby
-IODaemonizer.serve(
+IODaemonizer.wrap(
   {
     setup: -> do
       @app = App.new
