@@ -1,3 +1,5 @@
+ENV["IO_DAEMONIZER_PORT"] = "6872" # set before loading IO Daemonizer
+
 require "./io_daemonizer"
 
 class App
@@ -5,8 +7,8 @@ class App
     sleep(1) # simulate slow startup
   end
 
-  def say(msg)
-    msg.reverse
+  def shout(msg)
+    msg.upcast
   end
 end
 
@@ -15,6 +17,6 @@ IODaemonizer.wrap(
     @app = App.new # slow
   end,
   run: ->(args) do
-    puts @app.say(args.join(" ")) # fast
+    puts @app.shout(args.join(" ")) # fast
   end
 )

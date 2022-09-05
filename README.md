@@ -12,24 +12,24 @@ class App
     sleep(1) # simulate slow startup; load dependencies, etc
   end
 
-  def say(msg)
-    msg.reverse # simulate something useful
+  def shout(msg)
+    msg.upcase # simulate something useful
   end
 end
 
 app = App.new # slow; does the same thing each run
-puts app.say(ARGV.join(" ")) # fast; does something different each run
+puts app.shout(ARGV.join(" ")) # fast; does something different each run
 ```
 
 If we're calling this script frequently, we don't want to pay the cost of `App.new` each time.
 
 ```
 $ time ruby example.rb hello
-olleh
+HELLO
 real    0m1.089s
 
 $ time ruby example.rb there
-ereht
+THERE
 real    0m1.089s
 ```
 
@@ -48,7 +48,7 @@ IODaemonizer.serve(
       @app = App.new # slow
     end,
     run: ->(args) do # ARGV will be passed to run block as `args`
-      puts @app.say(args.join(" ")) # fast
+      puts @app.shout(args.join(" ")) # fast
     end
   }
 )
@@ -63,11 +63,11 @@ starting server...
 real    0m1.088s
 
 $ time ruby example.rb hello
-olleh
+HELLO
 real    0m0.081s
 
 $ time ruby example.rb there
-ereht
+THERE
 real    0m0.067s
 ```
 
@@ -85,9 +85,9 @@ IODaemonizer.serve(
       @app = App.new
     end,
     run: ->(args) do]
-      # DO NOT USE ARGV - use args instead, which is how the daemon passes the
-      # arguments it receives over the socket to the run block
-      puts @app.say(ARGV.join(" "))
+      # DO NOT USE ARGV HERE - use args instead, which is how the daemon passes
+      # the arguments it receives over the socket to the run block
+      puts @app.shout(ARGV.join(" "))
     end
   }
 )
@@ -96,10 +96,10 @@ IODaemonizer.serve(
 #   => starting server...
 
 # $ ruby example.rb hello
-#   trats
+#   START
 ```
 
-Also note that the daemon's scope is persistent across runs of your script. So, for example, the following would print a new number each run:
+Also note that the daemon's scope is persisted across runs of your script. So, for example, the following would print a new number each run:
 
 ```ruby
 IODaemonizer.wrap(
@@ -116,6 +116,9 @@ The daemon will start synchronously (ie, it will wait until the setup step compl
 ### Executing your script
 Once the daemon is running, you can call your script as normal.
 
+### Specifying port
+The port can be specified with the `IO_DAEMONIZER_PORT` environment variable. Make sure to use a different port for each script.
+
 ## Roadmap
 * [x] proof of concept
 * [x] basic docs
@@ -128,6 +131,7 @@ Once the daemon is running, you can call your script as normal.
 * [ ] support io more generically
 * [ ] command to get server status
 * [ ] pids?
+* [ ] use dynamic port 0 (need pid or some other way to find running daemon)
 * [ ] usage instructions (-h)?
 * [ ] logs?
 * [ ] optional async startup
