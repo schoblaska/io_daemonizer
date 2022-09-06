@@ -1,5 +1,5 @@
 # IO Daemonizer
-Wrap a Ruby script that speaks IO (STDIO only for now; see roadmap) in a daemon so that you only pay the startup overhead once.
+Wrap a Ruby script that speaks stdio in a daemon so that you only pay the startup overhead once.
 
 Inspired by and largely stolen from [fohte/rubocop-daemon](https://github.com/fohte/rubocop-daemon).
 
@@ -26,11 +26,11 @@ If we're calling this script frequently, we don't want to pay the cost of `App.n
 ```
 $ time ruby example.rb hello
 HELLO
-real    0m1.089s
+real    0m1.089s # <- slow
 
 $ time ruby example.rb there
 THERE
-real    0m1.089s
+real    0m1.089s # <- slow
 ```
 
 Instead, IO Daemonizer can wrap the setup step and the run step separately:
@@ -53,7 +53,7 @@ IODaemonizer.wrap(
 )
 ```
 
-Now, the next time we call our script it will perform the expensive setup step once and store the state in a background process. Subsequent calls will run in a new process that communicates with the daemon over a TCP socket. Any stdio communication in the daemon will be forwarded back to the client:
+Now, when we call our script the first time it will perform the expensive setup step once and store the state in a background process. Subsequent calls will run in a new process that communicates with the daemon over a TCP socket. Any stdio communication in the daemon will be forwarded back to the client:
 
 ```
 $ time ruby example.rb hello

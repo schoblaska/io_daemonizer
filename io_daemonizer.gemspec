@@ -3,7 +3,7 @@ Gem::Specification.new do |s|
   s.version = "5"
   s.summary = "IO Daemonizer"
   s.description =
-    "Wrap a Ruby script that speaks IO in a daemon so that you only pay the startup overhead once."
+    "Wrap a Ruby script that speaks stdio in a daemon so that you only pay the startup overhead once."
   s.authors = ["Joey Schoblaska"]
   s.email = "joey.schoblaska@gmail.com"
   s.files = ["io_daemonizer.rb"]
