@@ -8,7 +8,7 @@ class App
   end
 
   def shout(msg)
-    msg.upcast
+    msg.upcase
   end
 end
 
