@@ -126,7 +126,7 @@ The port can be specified with the `IO_DAEMONIZER_PORT` environment variable. Ma
 * [x] basic docs
 * [x] license
 * [x] [`v.1`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.1): gemify 
-* [x] [`v.3`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.2): support stdin
+* [x] [`v.3`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.3): support stdin
 * [ ] auto-start server if not available (configurable?)
 * [ ] pass port as argument?
 * [ ] support io more generically
