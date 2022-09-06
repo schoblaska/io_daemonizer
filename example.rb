@@ -19,13 +19,3 @@ IODaemonizer.wrap(
     puts @app.shout(args.join(" ")) # fast
   end
 )
-
-IODaemonizer.wrap(
-  port: 6872,
-  setup: -> { @app = App.new },
-  run: ->(args) do
-    # DO NOT USE ARGV HERE - use args instead, which is how the daemon passes
-    # the arguments it receives over the socket to the run block
-    puts @app.shout(ARGV.join(" "))
-  end
-)
