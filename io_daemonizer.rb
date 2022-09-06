@@ -1,7 +1,8 @@
-# io_daemonizer v.1 https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.2 https://github.com/joeyschoblaska/io_daemonizer
 
 require "shellwords"
 require "socket"
+require "stringio"
 
 class IODaemonizer
   PORT = ENV["IO_DAEMONIZER_PORT"] || 5289
@@ -23,19 +24,20 @@ class IODaemonizer
 
   def self.send_request(args)
     TCPSocket.open("127.0.0.1", PORT) do |socket|
-      socket.write args.shelljoin
+      socket.puts args.shelljoin
+      socket.write $stdin.tty? ? "" : $stdin.read
       socket.close_write
       STDOUT.write(socket.read(4096)) until socket.eof?
     end
   end
 
-  def self.redirect(stdout: $stdout, stderr: $stderr)
-    old_stdout, old_stderr = $stdout.dup, $stderr.dup
-    $stdout, $stderr = stdout, stderr
+  def self.redirect(stdin: $stdin, stdout: $stdout, stderr: $stderr)
+    oldin, oldout, olderr = $stdin.dup, $stdout.dup, $stderr.dup
+    $stdin, $stdout, $stderr = stdin, stdout, stderr
 
     yield
   ensure
-    $stdout, $stderr = old_stdout, old_stderr
+    $stdin, $stdout, $stderr = oldin, oldout, olderr
   end
 
   class Daemon
@@ -64,14 +66,17 @@ class IODaemonizer
     private
 
     def read_socket(socket)
-      args = socket.read.shellsplit
+      raw_args, *body = socket.read.lines
+      args = raw_args.shellsplit
 
       if args[0] == "stop"
         @server.close
       else
-        IODaemonizer.redirect(stdout: socket, stderr: socket) do
-          @context.instance_exec args, &@run
-        end
+        IODaemonizer.redirect(
+          stdin: StringIO.new(body.join),
+          stdout: socket,
+          stderr: socket
+        ) { @context.instance_exec args, &@run }
       end
     rescue => e
       socket.write e.inspect

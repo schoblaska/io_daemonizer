@@ -107,6 +107,9 @@ IODaemonizer.wrap(
 )
 ```
 
+### Make sure your run block accepts a single argument
+If your script is failing with `#<ArgumentError: wrong number of arguments (given 1, expected 0)>`, this is why.
+
 ### Starting and stopping the server
 Call your script with `start` or `stop` as the first argument to control the daemon process.
 
@@ -123,8 +126,8 @@ The port can be specified with the `IO_DAEMONIZER_PORT` environment variable. Ma
 * [x] basic docs
 * [x] license
 * [x] [`v.1`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.1): gemify 
+* [x] [`v.2`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.2): support stdin
 * [ ] auto-start server if not available (configurable?)
-* [ ] support stdin
 * [ ] pass port as argument?
 * [ ] support io more generically
 * [ ] command to get server status
