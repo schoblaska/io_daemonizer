@@ -43,14 +43,13 @@ class App
 end
 
 IODaemonizer.wrap(
-  {
-    setup: -> do
-      @app = App.new # slow
-    end,
-    run: ->(args) do # ARGV will be passed to run block as `args`
-      puts @app.shout(args.join(" ")) # fast
-    end
-  }
+  port: 6872,
+  setup: -> do
+    @app = App.new # slow
+  end,
+  run: ->(args) do # ARGV will be passed to run block as `args`
+    puts @app.shout(args.join(" ")) # fast
+  end
 )
 ```
 
@@ -74,21 +73,33 @@ real    0m0.067s
 IO Daemonizer is packaged as a gem, but it has no dependencies outside the core library and you may find it more convenient to include `io_daemonizer.rb` in your project directly. It needs to be loaded with each call to your script, so the less overhead the better.
 
 ## Usage
-### Defining your setup and run blocks
+### `IODaemonizer::wrap`
+This is the only method you need to call in your script. It parses the command-line args and handles starting / stopping the daemon and forwarding commands to it.
+
+`IODaemonizer::wrap` takes the following parameters:
+
+#### `port:` (required)
+The port that you want your daemon to run on. Make sure to use a different port for each script.
+
+#### `setup:` (required)
+A lambda which contains the one-time setup steps in your script. Any instance variables set in this step will be available to the run step.
+
+In this context, ARGV will be equal to the arguments that are present during server initialization.
+
+#### `run:` (required)
+A lambda which accepts a single parameter containing the command-line args forwarded from the client process (eg, `run: ->(args) { ... }`). Make sure to include the argument or you'll get the following error: `#<ArgumentError: wrong number of arguments (given 1, expected 0)>`.
+
 Both the setup and run blocks are stored in variables inside the daemon, and all execution is done within the daemon's scope - the client only passes its `ARGV` over the socket to the daemon and prints any response. If you reference `ARGV` directly in your run block it will not work as expected since it will be the _daemon_'s `ARGV` that gets evaluated:
 
 ```ruby
 IODaemonizer.wrap(
-  {
-    setup: -> do
-      @app = App.new
-    end,
-    run: ->(args) do
-      # DO NOT USE ARGV HERE - use args instead, which is how the daemon passes
-      # the arguments it receives over the socket to the run block
-      puts @app.shout(ARGV.join(" "))
-    end
-  }
+  port: 6872,
+  setup: -> { @app = App.new },
+  run: ->(args) do
+    # DO NOT USE ARGV HERE - use args instead, which is how the daemon passes
+    # the arguments it receives over the socket to the run block
+    puts @app.shout(ARGV.join(" "))
+  end
 )
 
 # $ ruby example.rb start
@@ -102,13 +113,11 @@ Also note that the daemon's scope is persisted across runs of your script. So, f
 
 ```ruby
 IODaemonizer.wrap(
+  port: 6872,
   setup: -> { @count = 0 },
   run: ->(args) { puts @count += 1 }
 )
 ```
-
-### Make sure your run block accepts a single argument
-If your script is failing with `#<ArgumentError: wrong number of arguments (given 1, expected 0)>`, this is why.
 
 ### Starting and stopping the server
 Call your script with `start` or `stop` as the first argument to control the daemon process.
@@ -118,20 +127,18 @@ The daemon will start synchronously (ie, it will wait until the setup step compl
 ### Executing your script
 Once the daemon is running, you can call your script as normal.
 
-### Specifying port
-The port can be specified with the `IO_DAEMONIZER_PORT` environment variable. Make sure to use a different port for each script.
-
 ## Roadmap
 * [x] proof of concept
 * [x] basic docs
 * [x] license
 * [x] [`v.1`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.1): gemify 
 * [x] [`v.3`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.3): support stdin
+* [x] [`v.4`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.4): pass port as argument
 * [ ] auto-start server if not available (configurable?)
-* [ ] pass port as argument?
-* [ ] support io more generically
+* [ ] write stderr to stderr
 * [ ] command to get server status
 * [ ] command to restart the server
+* [ ] support io more generically
 * [ ] pids?
 * [ ] use dynamic port 0 (need pid or some other way to find running daemon)
 * [ ] usage instructions (-h)?

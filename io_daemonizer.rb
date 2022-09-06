@@ -1,29 +1,27 @@
-# io_daemonizer v.3 https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.4 https://github.com/joeyschoblaska/io_daemonizer
 
 require "shellwords"
 require "socket"
 require "stringio"
 
 class IODaemonizer
-  PORT = ENV["IO_DAEMONIZER_PORT"] || 5289
-
-  def self.wrap(setup: -> {}, run: -> {})
+  def self.wrap(port:, setup:, run:)
     case ARGV[0]
     when "start"
       puts "starting server..."
-      Daemon.run(setup: setup, run: run)
+      Daemon.run(port: port, setup: setup, run: run)
     when "stop"
       puts "stopping server..."
-      send_request(ARGV)
+      send_request(port: port, args: ARGV)
     else
-      send_request(ARGV)
+      send_request(port: port, args: ARGV)
     end
   rescue Errno::ECONNREFUSED
     puts "server not running or not responding"
   end
 
-  def self.send_request(args)
-    TCPSocket.open("127.0.0.1", PORT) do |socket|
+  def self.send_request(port:, args:)
+    TCPSocket.open("127.0.0.1", port) do |socket|
       socket.puts args.shelljoin
       socket.write $stdin.tty? ? "" : $stdin.read
       socket.close_write
@@ -41,13 +39,14 @@ class IODaemonizer
   end
 
   class Daemon
-    def self.run(setup: -> {}, run: -> {})
-      daemon = new(setup: setup, run: run)
+    def self.run(port:, setup:, run:)
+      daemon = new(port: port, setup: setup, run: run)
       daemon.setup
       daemon.start
     end
 
-    def initialize(setup: -> {}, run: -> {})
+    def initialize(port:, setup:, run:)
+      @port = port
       @setup = setup
       @run = run
       @context = Object.new
@@ -58,7 +57,7 @@ class IODaemonizer
     end
 
     def start
-      @server = TCPServer.open("127.0.0.1", PORT)
+      @server = TCPServer.open("127.0.0.1", @port)
       Process.daemon(true)
       read_socket(@server.accept) until @server.closed?
     end
