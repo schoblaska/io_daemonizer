@@ -1,11 +1,11 @@
-# io_daemonizer v.4 https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.5 https://github.com/joeyschoblaska/io_daemonizer
 
 require "shellwords"
 require "socket"
 require "stringio"
 
 class IODaemonizer
-  def self.wrap(port:, setup:, run:)
+  def self.wrap(port:, setup:, run:, autostart: true)
     case ARGV[0]
     when "start"
       puts "starting server..."
@@ -14,7 +14,16 @@ class IODaemonizer
       puts "stopping server..."
       send_request(port: port, args: ARGV)
     else
-      send_request(port: port, args: ARGV)
+      begin
+        send_request(port: port, args: ARGV)
+      rescue Errno::ECONNREFUSED => e
+        raise(e) unless autostart
+        daemon = Daemon.new(port: port, setup: setup, run: run)
+        daemon.setup
+        fork { daemon.start }
+        sleep 0.1
+        send_request(port: port, args: ARGV)
+      end
     end
   rescue Errno::ECONNREFUSED
     puts "server not running or not responding"

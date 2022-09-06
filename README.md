@@ -53,20 +53,16 @@ IODaemonizer.wrap(
 )
 ```
 
-Now we can call our script with `start` to perform the expensive setup step once and store the state in a background process. Subsequent calls to our script will run in a new process that communicates with the daemon over a TCP socket. The daemon redirects stdio through the socket connection and the client prints any messages it receives.
+Now, the next time we call our script it will perform the expensive setup step once and store the state in a background process. Subsequent calls will run in a new process that communicates with the daemon over a TCP socket. Any stdio communication in the daemon will be forwarded back to the client:
 
 ```
-$ time ruby example.rb start
-starting server...
-real    0m1.088s
-
 $ time ruby example.rb hello
 HELLO
-real    0m0.081s
+real    0m1.088s # <- still slow...
 
 $ time ruby example.rb there
 THERE
-real    0m0.067s
+real    0m0.067s # <- fast!
 ```
 
 ## Installation
@@ -119,6 +115,9 @@ IODaemonizer.wrap(
 )
 ```
 
+#### `autostart:` (optional; default: `true`)
+Attempt to start the server automatically if it's not already running. If set to `false`, you will need to manually start your script's daemon with `ruby example.rb start` before calling it.
+
 ### Starting and stopping the server
 Call your script with `start` or `stop` as the first argument to control the daemon process.
 
@@ -134,7 +133,7 @@ Once the daemon is running, you can call your script as normal.
 * [x] [`v.1`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.1): gemify 
 * [x] [`v.3`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.3): support stdin
 * [x] [`v.4`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.4): pass port as argument
-* [ ] auto-start server if not available (configurable?)
+* [x] [`v.5`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.5): autostart server
 * [ ] write stderr to stderr
 * [ ] command to get server status
 * [ ] command to restart the server
