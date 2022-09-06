@@ -124,7 +124,6 @@ The port can be specified with the `IO_DAEMONIZER_PORT` environment variable. Ma
 * [x] license
 * [x] [`v.1`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.1): gemify 
 * [ ] auto-start server if not available (configurable?)
-* [ ] forward exit code to client script
 * [ ] support stdin
 * [ ] pass port as argument?
 * [ ] support io more generically
@@ -136,3 +135,4 @@ The port can be specified with the `IO_DAEMONIZER_PORT` environment variable. Ma
 * [ ] logs?
 * [ ] optional async startup
 * [ ] support first argument that sends remaining as literal args (eg, so that you can pass "stop" _to_ the daemon instead of stopping it)
+* [ ] forward exit code to client script?
