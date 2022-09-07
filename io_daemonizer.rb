@@ -1,4 +1,4 @@
-# io_daemonizer v.5 https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.6 https://github.com/joeyschoblaska/io_daemonizer
 
 require "json"
 require "shellwords"
@@ -87,7 +87,7 @@ class IODaemonizer
         IODaemonizer.redirect(
           stdin: StringIO.new(body.join),
           stdout: IOLabeler.new(1, socket, "stdout"),
-          stderr: IOLabeler.new(2, socket, "stderr"),
+          stderr: IOLabeler.new(2, socket, "stderr")
         ) { @context.instance_exec args, &@run }
       end
     rescue => e
@@ -109,7 +109,7 @@ class IODaemonizer
     end
 
     def write(chunk)
-      @socket.write({@label => chunk}.to_json)
+      @socket.write({ @label => chunk }.to_json)
     end
 
     def reopen(io)

@@ -134,7 +134,7 @@ Once the daemon is running, you can call your script as normal.
 * [x] [`v.3`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.3): support stdin
 * [x] [`v.4`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.4): pass port as argument
 * [x] [`v.5`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.5): autostart server
-* [ ] write stderr to stderr
+* [x] [`v.6`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.6): write stderr to stderr
 * [ ] command to get server status
 * [ ] command to restart the server
 * [ ] support io more generically
