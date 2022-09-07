@@ -135,14 +135,14 @@ Once the daemon is running, you can call your script as normal.
 * [x] [`v.4`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.4): pass port as argument
 * [x] [`v.5`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.5): autostart server
 * [x] [`v.6`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.6): write stderr to stderr
-* [ ] configurable timeouts
 * [ ] command to get server status
 * [ ] command to restart the server
+* [ ] configurable timeouts
+* [ ] logs?
+* [ ] support first argument that sends remaining as literal args (eg, so that you can pass "stop" _to_ the daemon instead of stopping it)
+* [ ] optional async startup
 * [ ] support io more generically
 * [ ] pids?
 * [ ] use dynamic port 0 (need pid or some other way to find running daemon)
 * [ ] usage instructions (-h)?
-* [ ] logs?
-* [ ] optional async startup
-* [ ] support first argument that sends remaining as literal args (eg, so that you can pass "stop" _to_ the daemon instead of stopping it)
 * [ ] forward exit code to client script?
