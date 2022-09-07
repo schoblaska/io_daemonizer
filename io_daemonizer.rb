@@ -1,5 +1,6 @@
 # io_daemonizer v.5 https://github.com/joeyschoblaska/io_daemonizer
 
+require "json"
 require "shellwords"
 require "socket"
 require "stringio"
@@ -30,11 +31,14 @@ class IODaemonizer
   end
 
   def self.send_request(port:, args:)
+    consumer = LabeledIOConsumer.new
+
     TCPSocket.open("127.0.0.1", port) do |socket|
       socket.puts args.shelljoin
       socket.write $stdin.tty? ? "" : $stdin.read
       socket.close_write
-      STDOUT.write(socket.read(4096)) until socket.eof?
+
+      consumer.write(socket.read) until socket.eof?
     end
   end
 
@@ -82,14 +86,65 @@ class IODaemonizer
       else
         IODaemonizer.redirect(
           stdin: StringIO.new(body.join),
-          stdout: socket,
-          stderr: socket
+          stdout: IOLabeler.new(1, socket, "stdout"),
+          stderr: IOLabeler.new(2, socket, "stderr"),
         ) { @context.instance_exec args, &@run }
       end
     rescue => e
       socket.write e.inspect
+      raise e
     ensure
+      socket.close_write
       socket.close
+    end
+  end
+
+  class IOLabeler < IO
+    attr_reader :label
+
+    def initialize(fd, socket, label)
+      super(fd)
+      @socket = socket
+      @label = label
+    end
+
+    def write(chunk)
+      @socket.write({@label => chunk}.to_json)
+    end
+
+    def reopen(io)
+      @label = io&.label || @label
+    end
+  end
+
+  class LabeledIOConsumer
+    def initialize
+      @buffer = ""
+    end
+
+    def write(chunk)
+      chunk.chars.each do |ch|
+        @buffer << ch
+        process_buffer
+      end
+    end
+
+    private
+
+    def process_buffer
+      parsed = JSON.parse(@buffer)
+      key = parsed.keys[0]
+      value = parsed.values[0]
+
+      case key
+      when "stdout"
+        $stdout.write(value)
+      when "stderr"
+        $stderr.write(value)
+      end
+
+      @buffer = ""
+    rescue JSON::ParserError
     end
   end
 end
