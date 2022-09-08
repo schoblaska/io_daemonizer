@@ -1,4 +1,4 @@
-# io_daemonizer v.6 https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.7 https://github.com/joeyschoblaska/io_daemonizer
 
 require "json"
 require "shellwords"
@@ -125,7 +125,7 @@ class IODaemonizer
     def write(chunk)
       chunk.chars.each do |ch|
         @buffer << ch
-        process_buffer
+        process_buffer if ch == "}"
       end
     end
 

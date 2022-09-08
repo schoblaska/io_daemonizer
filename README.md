@@ -131,10 +131,12 @@ Once the daemon is running, you can call your script as normal.
 * [x] basic docs
 * [x] license
 * [x] [`v.1`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.1): gemify 
+* [x] `v.2` not sure what happened to v.2
 * [x] [`v.3`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.3): support stdin
 * [x] [`v.4`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.4): pass port as argument
 * [x] [`v.5`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.5): autostart server
 * [x] [`v.6`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.6): write stderr to stderr
+* [x] [`v.7`](https://github.com/joeyschoblaska/io_daemonizer/tree/v.7): optimize streaming json parser :rocket:
 * [ ] command to get server status
 * [ ] command to restart the server
 * [ ] configurable timeouts
