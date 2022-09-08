@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "io_daemonizer"
-  s.version = "7.1"
+  s.version = "7.2"
   s.summary = "IO Daemonizer"
   s.description =
     "Wrap a Ruby script that speaks stdio in a daemon so that you only pay the startup overhead once."
