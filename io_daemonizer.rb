@@ -1,4 +1,4 @@
-# io_daemonizer v.7 https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.7.1 https://github.com/joeyschoblaska/io_daemonizer
 
 require "json"
 require "shellwords"
@@ -19,9 +19,7 @@ class IODaemonizer
         send_request(port: port, args: ARGV)
       rescue Errno::ECONNREFUSED => e
         raise(e) unless autostart
-        daemon = Daemon.new(port: port, setup: setup, run: run)
-        daemon.setup
-        fork { daemon.start }
+        Daemon.run(port: port, setup: setup, run: run, fork: true)
         sleep 0.1
         send_request(port: port, args: ARGV)
       end
@@ -52,10 +50,10 @@ class IODaemonizer
   end
 
   class Daemon
-    def self.run(port:, setup:, run:)
+    def self.run(port:, setup:, run:, fork: false)
       daemon = new(port: port, setup: setup, run: run)
       daemon.setup
-      daemon.start
+      fork ? Kernel.fork { daemon.start } : daemon.start
     end
 
     def initialize(port:, setup:, run:)
