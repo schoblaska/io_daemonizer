@@ -131,15 +131,9 @@ class IODaemonizer
 
     def process_buffer
       parsed = JSON.parse(@buffer)
-      key = parsed.keys[0]
-      value = parsed.values[0]
 
-      case key
-      when "stdout"
-        $stdout.write(value)
-      when "stderr"
-        $stderr.write(value)
-      end
+      $stdout.write(parsed["stdout"]) if parsed["stdout"]
+      $stderr.write(parsed["stderr"]) if parsed["stderr"]
 
       @buffer = ""
     rescue JSON::ParserError
