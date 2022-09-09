@@ -140,6 +140,7 @@ Once the daemon is running, you can call your script as normal.
 * [ ] command to get server status
 * [ ] command to restart the server
 * [ ] configurable timeouts
+* [ ] automatically restart server after configurable interval
 * [ ] logs?
 * [ ] support first argument that sends remaining as literal args (eg, so that you can pass "stop" _to_ the daemon instead of stopping it)
 * [ ] optional async startup
