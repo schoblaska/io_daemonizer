@@ -1,4 +1,4 @@
-# io_daemonizer v.7.2 https://github.com/joeyschoblaska/io_daemonizer
+# io_daemonizer v.7.2 https://github.com/schoblaska/io_daemonizer
 
 require "json"
 require "shellwords"
